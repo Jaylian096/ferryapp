@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Bantayan Ferry</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .auth-page { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; position:relative; z-index:1; }
+    .auth-card { width:100%; max-width:420px; }
+    .auth-header { text-align:center; margin-bottom:32px; }
+    .auth-header .logo { font-size:2.2rem; margin-bottom:10px; display:block; }
+    .auth-header h1 { font-family:var(--font-display); font-size:1.7rem; font-weight:800; margin-bottom:6px; }
+    .auth-header p { font-size:0.88rem; color:var(--text-dim); }
+    .auth-footer { text-align:center; margin-top:24px; font-size:0.88rem; color:var(--text-dim); }
+    .auth-footer a { color:var(--teal); text-decoration:none; font-weight:600; }
+    .auth-footer a:hover { text-decoration:underline; }
+    .tab-switch { display:flex; background:rgba(255,255,255,0.04); border-radius:10px; padding:4px; margin-bottom:24px; border:1px solid var(--glass-border); }
+    .tab-switch button { flex:1; padding:9px; border-radius:7px; background:none; border:none; color:var(--text-dim); font-family:var(--font-body); font-size:0.88rem; font-weight:600; cursor:pointer; transition:var(--transition); }
+    .tab-switch button.active { background:linear-gradient(135deg,var(--wave-2),var(--teal)); color:#fff; }
+    .divider-text { display:flex; align-items:center; gap:12px; margin:20px 0; }
+    .divider-text span { font-size:0.78rem; color:var(--text-faint); white-space:nowrap; }
+    .divider-text::before,.divider-text::after { content:''; flex:1; height:1px; background:var(--glass-border); }
+    .back-link { display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--text-dim); text-decoration:none; margin-bottom:24px; transition:var(--transition); }
+    .back-link:hover { color:var(--teal); }
+  </style>
+</head>
+<body>
+<div class="bg-orbs"></div>
+
+<div class="auth-page">
+  <div class="auth-card slide-up">
+    <a href="index.html" class="back-link">← Back to Home</a>
+    <div class="card">
+      <div class="auth-header">
+        <span class="logo">⛴</span>
+        <h1>Welcome Back</h1>
+        <p>Sign in to your Bantayan Ferry account</p>
+      </div>
+
+      <div class="tab-switch">
+        <button id="tab-user" class="active" onclick="switchTab('user')">Passenger</button>
+        <button id="tab-admin" onclick="switchTab('admin')">Admin</button>
+      </div>
+
+      <div id="alert-box"></div>
+
+      <!-- User Login -->
+      <div id="form-user">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-wrap">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+            <input type="email" id="user-email" class="form-control" placeholder="you@email.com" autocomplete="email">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrap">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="user-password" class="form-control" placeholder="••••••••" autocomplete="current-password">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" id="btn-login" onclick="loginUser()">
+          Sign In →
+        </button>
+      </div>
+
+      <!-- Admin Login -->
+      <div id="form-admin" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <div class="input-wrap">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="text" id="admin-username" class="form-control" placeholder="admin" autocomplete="username">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrap">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="admin-password" class="form-control" placeholder="••••••••" autocomplete="current-password">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" id="btn-admin-login" onclick="loginAdmin()">
+          Admin Sign In →
+        </button>
+      </div>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="register.html">Register here</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script>
+  // Redirect if already logged in
+  if (Session.isLoggedIn()) location.href = 'dashboard.html';
+  if (Session.isAdmin()) location.href = 'admin.html';
+
+  function switchTab(tab) {
+    document.getElementById('tab-user').classList.toggle('active', tab === 'user');
+    document.getElementById('tab-admin').classList.toggle('active', tab === 'admin');
+    document.getElementById('form-user').style.display  = tab === 'user'  ? 'block' : 'none';
+    document.getElementById('form-admin').style.display = tab === 'admin' ? 'block' : 'none';
+    document.getElementById('alert-box').innerHTML = '';
+  }
+
+  function showAlert(msg, type = 'error') {
+    document.getElementById('alert-box').innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+  }
+
+  async function loginUser() {
+    const email    = document.getElementById('user-email').value.trim();
+    const password = document.getElementById('user-password').value;
+    if (!email || !password) return showAlert('Please fill in all fields.');
+    const btn = document.getElementById('btn-login');
+    btn.disabled = true; btn.textContent = 'Signing in…';
+    try {
+      const res = await API.post('auth.php', { action: 'login' }, { email, password });
+      if (res.success) {
+        Session.setUser(res.user);
+        toast('Welcome back, ' + res.user.name + '!', 'success');
+        setTimeout(() => location.href = 'dashboard.html', 500);
+      } else {
+        showAlert(res.message || 'Login failed.');
+        btn.disabled = false; btn.textContent = 'Sign In →';
+      }
+    } catch (e) {
+      showAlert('Connection error. Make sure the backend is running.', 'error');
+      btn.disabled = false; btn.textContent = 'Sign In →';
+    }
+  }
+
+  async function loginAdmin() {
+    const username = document.getElementById('admin-username').value.trim();
+    const password = document.getElementById('admin-password').value;
+    if (!username || !password) return showAlert('Please fill in all fields.');
+    const btn = document.getElementById('btn-admin-login');
+    btn.disabled = true; btn.textContent = 'Signing in…';
+    try {
+      const res = await API.post('auth.php', { action: 'admin_login' }, { username, password });
+      if (res.success) {
+        Session.setAdmin(res.admin);
+        toast('Welcome, ' + res.admin.username + '!', 'success');
+        setTimeout(() => location.href = 'admin.html', 500);
+      } else {
+        showAlert(res.message || 'Login failed.');
+        btn.disabled = false; btn.textContent = 'Admin Sign In →';
+      }
+    } catch (e) {
+      showAlert('Connection error.', 'error');
+      btn.disabled = false; btn.textContent = 'Admin Sign In →';
+    }
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    if (document.getElementById('form-user').style.display !== 'none') loginUser();
+    else loginAdmin();
+  });
+</script>
+</body>
+</html>

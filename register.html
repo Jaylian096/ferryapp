@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register — Bantayan Ferry</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .auth-page { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; position:relative; z-index:1; }
+    .auth-card { width:100%; max-width:440px; }
+    .auth-header { text-align:center; margin-bottom:28px; }
+    .auth-header .logo { font-size:2rem; margin-bottom:8px; display:block; }
+    .auth-header h1 { font-family:var(--font-display); font-size:1.6rem; font-weight:800; margin-bottom:6px; }
+    .auth-header p { font-size:0.88rem; color:var(--text-dim); }
+    .auth-footer { text-align:center; margin-top:20px; font-size:0.88rem; color:var(--text-dim); }
+    .auth-footer a { color:var(--teal); text-decoration:none; font-weight:600; }
+    .back-link { display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--text-dim); text-decoration:none; margin-bottom:20px; transition:var(--transition); }
+    .back-link:hover { color:var(--teal); }
+    .password-strength { height:4px; border-radius:2px; margin-top:6px; transition:var(--transition); }
+    .strength-hint { font-size:0.75rem; color:var(--text-dim); margin-top:4px; }
+  </style>
+</head>
+<body>
+<div class="bg-orbs"></div>
+
+<div class="auth-page">
+  <div class="auth-card slide-up">
+    <a href="login.html" class="back-link">← Back to Login</a>
+    <div class="card">
+      <div class="auth-header">
+        <span class="logo">⛴</span>
+        <h1>Create Account</h1>
+        <p>Register to book ferry tickets online</p>
+      </div>
+
+      <div id="alert-box"></div>
+
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <div class="input-wrap">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input type="text" id="name" class="form-control" placeholder="Juan dela Cruz" autocomplete="name">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <div class="input-wrap">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+          <input type="email" id="email" class="form-control" placeholder="you@email.com" autocomplete="email">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Contact Number</label>
+        <div class="input-wrap">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.18 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9c1.91 3.28 4.63 5.99 7.9 7.9l1.35-1.35a2 2 0 0 1 2.11-.45c.9.35 1.84.58 2.81.7A2 2 0 0 1 24 18z"/></svg>
+          <input type="tel" id="contact" class="form-control" placeholder="09XX XXX XXXX" autocomplete="tel">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrap">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="password" class="form-control" placeholder="Min. 6 characters" autocomplete="new-password" oninput="checkStrength(this.value)">
+        </div>
+        <div class="password-strength" id="strength-bar" style="background:var(--glass-border)"></div>
+        <div class="strength-hint" id="strength-hint">Enter a password</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <div class="input-wrap">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="confirm-password" class="form-control" placeholder="Repeat password" autocomplete="new-password">
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full" id="btn-register" onclick="register()">
+        Create Account →
+      </button>
+
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Sign in</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script>
+  if (Session.isLoggedIn()) location.href = 'dashboard.html';
+
+  function checkStrength(val) {
+    const bar  = document.getElementById('strength-bar');
+    const hint = document.getElementById('strength-hint');
+    if (!val) { bar.style.width = '0'; hint.textContent = 'Enter a password'; return; }
+    let score = 0;
+    if (val.length >= 6)  score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const levels = [
+      { pct: '20%', color: '#ff4d6d', label: 'Too short' },
+      { pct: '40%', color: '#f0b429', label: 'Weak' },
+      { pct: '60%', color: '#f0b429', label: 'Fair' },
+      { pct: '80%', color: '#2dd4bf', label: 'Good' },
+      { pct: '100%', color: '#2dd4bf', label: 'Strong' },
+    ];
+    const l = levels[Math.min(score, 4)];
+    bar.style.width = l.pct; bar.style.background = l.color;
+    hint.textContent = l.label; hint.style.color = l.color;
+  }
+
+  function showAlert(msg, type = 'error') {
+    document.getElementById('alert-box').innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+  }
+
+  async function register() {
+    const name     = document.getElementById('name').value.trim();
+    const email    = document.getElementById('email').value.trim();
+    const contact  = document.getElementById('contact').value.trim();
+    const password = document.getElementById('password').value;
+    const confirm  = document.getElementById('confirm-password').value;
+
+    if (!name || !email || !password) return showAlert('Please fill in all required fields.');
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) return showAlert('Please enter a valid email.');
+    if (password.length < 6) return showAlert('Password must be at least 6 characters.');
+    if (password !== confirm) return showAlert('Passwords do not match.');
+
+    const btn = document.getElementById('btn-register');
+    btn.disabled = true; btn.textContent = 'Creating account…';
+    try {
+      const res = await API.post('auth.php', { action: 'register' }, { name, email, contact, password });
+      if (res.success) {
+        showAlert('Account created successfully! Redirecting to login…', 'success');
+        setTimeout(() => location.href = 'login.html', 2000);
+      } else {
+        showAlert(res.message || 'Registration failed.');
+        btn.disabled = false; btn.textContent = 'Create Account →';
+      }
+    } catch(e) {
+      showAlert('Connection error. Make sure backend is running.');
+      btn.disabled = false; btn.textContent = 'Create Account →';
+    }
+  }
+</script>
+</body>
+</html>

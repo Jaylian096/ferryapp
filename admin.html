@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Bantayan Ferry</title>
+  <link rel="stylesheet" href="css/main.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <style>
+    .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+    .chart-wrap { background:var(--glass); border:1px solid var(--glass-border); backdrop-filter:blur(20px); border-radius:var(--radius); padding:24px; margin-bottom:24px; }
+    .chart-title { font-family:var(--font-display); font-size:0.95rem; font-weight:700; margin-bottom:20px; }
+    .table-card { background:var(--glass); border:1px solid var(--glass-border); backdrop-filter:blur(20px); border-radius:var(--radius); overflow:hidden; }
+    .table-toolbar { padding:16px 20px; border-bottom:1px solid var(--glass-border); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .table-toolbar h3 { font-family:var(--font-display); font-size:0.95rem; font-weight:700; }
+    @media(max-width:900px) { .stats-grid{grid-template-columns:1fr 1fr} }
+    @media(max-width:480px) { .stats-grid{grid-template-columns:1fr 1fr} }
+  </style>
+</head>
+<body>
+<div class="bg-orbs"></div>
+
+<div class="layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="logo">⛴</span>
+      <div>
+        <div style="font-size:0.95rem;">Admin Panel</div>
+        <div style="font-size:0.7rem;color:var(--text-dim);font-weight:400;" id="admin-name-label">—</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Overview</div>
+      <a class="nav-item active" id="nav-overview" onclick="showAdminSection('overview')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <div class="nav-section">Management</div>
+      <a class="nav-item" id="nav-bookings" onclick="showAdminSection('bookings')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Bookings
+      </a>
+      <a class="nav-item" id="nav-schedules" onclick="showAdminSection('schedules')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Schedules
+      </a>
+      <a class="nav-item" id="nav-fares" onclick="showAdminSection('fares')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Fares & Cargo
+      </a>
+      <a class="nav-item" id="nav-lines" onclick="showAdminSection('lines')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21c-1.39 0-2.78-.47-4-1.32-2.44 1.71-5.56 1.71-8 0C6.78 20.53 5.39 21 4 21H2v2h2c1.39 0 2.78-.47 4-1.32 2.44 1.71 5.56 1.71 8 0 1.22.85 2.61 1.32 4 1.32h2v-2h-2z"/></svg>
+        Shipping Lines
+      </a>
+      <div class="nav-section">Users</div>
+      <a class="nav-item" id="nav-users" onclick="showAdminSection('users')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Users
+      </a>
+      <a class="nav-item" id="nav-admins" onclick="showAdminSection('admins')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Admins
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-full btn-sm" onclick="adminLogout()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+      <button class="hamburger" id="hamburger" style="display:none;"><span></span><span></span><span></span></button>
+      <h1 class="section-title" id="page-title" style="margin-bottom:0;">Dashboard</h1>
+    </div>
+
+    <!-- ── Overview ── -->
+    <div id="section-overview">
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card stagger-1 slide-up">
+          <div class="stat-icon" style="background:rgba(30,143,214,0.15);">🎫</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-label">Total Bookings</div>
+        </div>
+        <div class="stat-card stagger-2 slide-up">
+          <div class="stat-icon" style="background:rgba(0,212,200,0.15);">💰</div>
+          <div class="stat-value" id="stat-revenue">—</div>
+          <div class="stat-label">Total Revenue</div>
+        </div>
+        <div class="stat-card stagger-3 slide-up">
+          <div class="stat-icon" style="background:rgba(240,180,41,0.15);">👥</div>
+          <div class="stat-value" id="stat-users">—</div>
+          <div class="stat-label">Registered Users</div>
+        </div>
+        <div class="stat-card stagger-4 slide-up">
+          <div class="stat-icon" style="background:rgba(45,212,191,0.15);">📅</div>
+          <div class="stat-value" id="stat-schedules">—</div>
+          <div class="stat-label">Active Schedules</div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">📊 Monthly Revenue Overview</div>
+        <canvas id="revenue-chart" height="80"></canvas>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title" style="margin-bottom:0;">📋 Recent Bookings</div>
+        <div class="table-wrap" id="recent-bookings-table"></div>
+      </div>
+    </div>
+
+    <!-- ── Bookings ── -->
+    <div id="section-bookings" style="display:none;">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <h3>All Bookings</h3>
+          <div class="search-bar" style="min-width:220px;">
+            <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="form-control" placeholder="Search reference…" oninput="filterBookings(this.value)" style="padding-left:36px;padding-top:10px;padding-bottom:10px;">
+          </div>
+        </div>
+        <div class="table-wrap" id="bookings-table">
+          <div class="flex-center" style="padding:60px;"><div class="loader"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Schedules ── -->
+    <div id="section-schedules" style="display:none;">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <h3>Schedules</h3>
+          <button class="btn btn-primary btn-sm" onclick="openScheduleModal()">+ Add Schedule</button>
+        </div>
+        <div class="table-wrap" id="schedules-table">
+          <div class="flex-center" style="padding:60px;"><div class="loader"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Fares ── -->
+    <div id="section-fares" style="display:none;">
+      <div class="tab-nav">
+        <button class="tab-btn active" id="tab-fares" onclick="switchFareTab('fares')">Passenger Fares</button>
+        <button class="tab-btn" id="tab-cargo" onclick="switchFareTab('cargo')">Cargo Rates</button>
+      </div>
+      <div id="fares-panel">
+        <div class="table-card">
+          <div class="table-toolbar"><h3>Passenger Fares</h3></div>
+          <div class="table-wrap" id="fares-table"><div class="flex-center" style="padding:60px;"><div class="loader"></div></div></div>
+        </div>
+      </div>
+      <div id="cargo-panel" style="display:none;">
+        <div class="table-card">
+          <div class="table-toolbar"><h3>Cargo Rates</h3></div>
+          <div class="table-wrap" id="cargo-table"><div class="flex-center" style="padding:60px;"><div class="loader"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Lines ── -->
+    <div id="section-lines" style="display:none;">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <h3>Shipping Lines</h3>
+          <button class="btn btn-primary btn-sm" onclick="openLineModal()">+ Add Line</button>
+        </div>
+        <div class="table-wrap" id="lines-table"><div class="flex-center" style="padding:60px;"><div class="loader"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ── Users ── -->
+    <div id="section-users" style="display:none;">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <h3>Registered Users</h3>
+          <div class="search-bar" style="min-width:220px;">
+            <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="form-control" placeholder="Search users…" oninput="filterUsers(this.value)" style="padding-left:36px;padding-top:10px;padding-bottom:10px;">
+          </div>
+        </div>
+        <div class="table-wrap" id="users-table"><div class="flex-center" style="padding:60px;"><div class="loader"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ── Admins ── -->
+    <div id="section-admins" style="display:none;">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <h3>Admin Accounts</h3>
+          <button class="btn btn-primary btn-sm" onclick="openAdminModal()">+ Add Admin</button>
+        </div>
+        <div class="table-wrap" id="admins-table"><div class="flex-center" style="padding:60px;"><div class="loader"></div></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Generic Modal -->
+<div class="modal-overlay" id="gen-modal" style="display:none;">
+  <div class="modal">
+    <div class="modal-header" id="modal-title">Modal
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script>
+const admin = Session.getAdmin();
+if (!admin) location.href = 'login.html';
+
+let allBookings = [], allUsers = [], allFares = [], allCargo = [], allSchedules = [], allLines = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+  initSidebar();
+  document.getElementById('admin-name-label').textContent = admin.username;
+  // Show hamburger on mobile
+  const hb = document.getElementById('hamburger');
+  if (window.innerWidth <= 768 && hb) hb.style.display = 'flex';
+  loadOverview();
+});
+
+// ── Sections ─────────────────────────────────
+const sectionTitles = { overview:'Dashboard', bookings:'Manage Bookings', schedules:'Manage Schedules', fares:'Fares & Cargo Rates', lines:'Shipping Lines', users:'Manage Users', admins:'Manage Admins' };
+function showAdminSection(name) {
+  Object.keys(sectionTitles).forEach(s => {
+    document.getElementById('section-' + s).style.display = s === name ? 'block' : 'none';
+    document.getElementById('nav-' + s)?.classList.toggle('active', s === name);
+  });
+  document.getElementById('page-title').textContent = sectionTitles[name];
+  document.getElementById('sidebar')?.classList.remove('open');
+  document.getElementById('sidebar-overlay')?.classList.remove('show');
+  const loaders = { bookings: loadAdminBookings, schedules: loadAdminSchedules, fares: loadFares, lines: loadLines, users: loadUsers, admins: loadAdmins };
+  if (loaders[name]) loaders[name]();
+}
+
+// ── Overview ──────────────────────────────────
+async function loadOverview() {
+  const [statsRes, bookingsRes] = await Promise.all([
+    API.get('bookings.php', { action: 'stats' }),
+    API.get('bookings.php', { action: 'all' })
+  ]);
+  const s = statsRes.stats;
+  document.getElementById('stat-total').textContent     = s.total || 0;
+  document.getElementById('stat-revenue').textContent   = formatCurrency(s.revenue || 0);
+  document.getElementById('stat-users').textContent     = s.users || 0;
+  document.getElementById('stat-schedules').textContent = s.schedules || 0;
+
+  allBookings = bookingsRes.bookings || [];
+  renderRecentBookings();
+  renderRevenueChart();
+}
+
+function renderRecentBookings() {
+  const recent = allBookings.slice(0, 8);
+  const el = document.getElementById('recent-bookings-table');
+  if (!recent.length) { el.innerHTML = '<div class="empty"><p>No bookings yet.</p></div>'; return; }
+  el.innerHTML = `<table>
+    <thead><tr><th>Reference</th><th>Passenger</th><th>Route</th><th>Amount</th><th>Status</th></tr></thead>
+    <tbody>${recent.map(b => `
+      <tr>
+        <td style="font-family:var(--font-display);font-size:0.82rem;color:var(--teal)">${b.reference_no}</td>
+        <td>${b.user_name}</td>
+        <td style="font-size:0.82rem">${b.route}</td>
+        <td style="font-family:var(--font-display);font-weight:700">${formatCurrency(b.total_price)}</td>
+        <td>${badgeHtml(b.status)}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function renderRevenueChart() {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const data = Array(12).fill(0);
+  allBookings.forEach(b => {
+    if (b.status === 'cancelled') return;
+    const m = new Date(b.booking_date).getMonth();
+    data[m] += parseFloat(b.total_price);
+  });
+  const ctx = document.getElementById('revenue-chart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Revenue (₱)', data,
+        backgroundColor: 'rgba(0,212,200,0.2)',
+        borderColor: 'rgba(0,212,200,0.8)',
+        borderWidth: 2, borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: 'rgba(232,244,253,0.5)', font: { size: 11 } } },
+        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: 'rgba(232,244,253,0.5)', font: { size: 11 }, callback: v => '₱' + v.toLocaleString() } }
+      }
+    }
+  });
+}
+
+// ── Bookings ──────────────────────────────────
+async function loadAdminBookings() {
+  const el = document.getElementById('bookings-table');
+  if (allBookings.length === 0) {
+    const res = await API.get('bookings.php', { action: 'all' });
+    allBookings = res.bookings || [];
+  }
+  renderBookingsTable(allBookings);
+}
+
+function renderBookingsTable(list) {
+  const el = document.getElementById('bookings-table');
+  if (!list.length) { el.innerHTML = '<div class="empty"><p>No bookings found.</p></div>'; return; }
+  el.innerHTML = `<table>
+    <thead><tr><th>Reference</th><th>Passenger</th><th>Line / Route</th><th>Time</th><th>Type</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${list.map(b => `
+      <tr>
+        <td style="font-family:var(--font-display);color:var(--teal);font-size:0.82rem">${b.reference_no}</td>
+        <td>${b.user_name}<div style="font-size:0.72rem;color:var(--text-dim)">${b.user_email}</div></td>
+        <td>${b.shipping_line}<div style="font-size:0.72rem;color:var(--text-dim)">${b.route}</div></td>
+        <td style="font-size:0.82rem">${formatTime(b.departure_time)}</td>
+        <td style="font-size:0.82rem">${b.passenger_type}${b.class_type !== 'N/A' ? '<br><span style="color:var(--text-dim)">'+b.class_type+'</span>' : ''}</td>
+        <td style="font-family:var(--font-display);font-weight:700">${formatCurrency(b.total_price)}</td>
+        <td>${badgeHtml(b.status)}</td>
+        <td>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <select class="form-control" style="padding:5px 8px;font-size:0.78rem;width:120px;" onchange="updateBookingStatus(${b.id}, this.value)">
+              <option value="confirmed"  ${b.status==='confirmed'  ? 'selected':''}>Confirmed</option>
+              <option value="completed"  ${b.status==='completed'  ? 'selected':''}>Completed</option>
+              <option value="cancelled"  ${b.status==='cancelled'  ? 'selected':''}>Cancelled</option>
+            </select>
+            <button class="btn btn-danger btn-sm" onclick="deleteBooking(${b.id})">✕</button>
+          </div>
+        </td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function filterBookings(q) { renderBookingsTable(allBookings.filter(b => b.reference_no.toLowerCase().includes(q.toLowerCase()) || b.user_name.toLowerCase().includes(q.toLowerCase()))); }
+
+async function updateBookingStatus(id, status) {
+  const res = await API.post('bookings.php', { action: 'update_status' }, { booking_id: id, status });
+  if (res.success) toast('Status updated', 'success'); else toast('Failed', 'error');
+  allBookings = [];
+}
+
+async function deleteBooking(id) {
+  confirm('Delete this booking permanently?', async () => {
+    const res = await API.delete('bookings.php', { id });
+    if (res.success) { toast('Deleted', 'success'); allBookings = []; loadAdminBookings(); }
+    else toast('Failed', 'error');
+  });
+}
+
+// ── Schedules ─────────────────────────────────
+async function loadAdminSchedules() {
+  const [sRes, lRes] = await Promise.all([API.get('schedules.php', { action: 'all' }), API.get('shipping_lines.php')]);
+  allSchedules = sRes.schedules || [];
+  allLines     = lRes.lines     || [];
+  const el = document.getElementById('schedules-table');
+  if (!allSchedules.length) { el.innerHTML = '<div class="empty"><p>No schedules.</p></div>'; return; }
+  el.innerHTML = `<table>
+    <thead><tr><th>Shipping Line</th><th>Route</th><th>Departure</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${allSchedules.map(s => `
+      <tr>
+        <td>${s.shipping_line}</td>
+        <td>${s.route}</td>
+        <td style="font-family:var(--font-display);font-weight:700">${formatTime(s.departure_time)}</td>
+        <td>${badgeHtml(s.status)}</td>
+        <td>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="editSchedule(${s.id})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteSchedule(${s.id})">✕</button>
+          </div>
+        </td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function openScheduleModal(data = null) {
+  document.getElementById('modal-title').textContent = data ? 'Edit Schedule' : 'Add Schedule';
+  const lineOptions = allLines.map(l => `<option value="${l.id}" ${data?.shipping_line_id == l.id ? 'selected' : ''}>${l.name}</option>`).join('');
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-group"><label class="form-label">Shipping Line</label>
+      <select class="form-control" id="f-line">${lineOptions}</select></div>
+    <div class="form-group"><label class="form-label">Route</label>
+      <input class="form-control" id="f-route" value="${data?.route || ''}" placeholder="Santa Fe → Hagnaya"></div>
+    <div class="form-group"><label class="form-label">Departure Time</label>
+      <input class="form-control" id="f-time" type="time" value="${data?.departure_time?.slice(0,5) || ''}"></div>
+    ${data ? `<div class="form-group"><label class="form-label">Status</label>
+      <select class="form-control" id="f-status">
+        <option value="active" ${data.status==='active'?'selected':''}>Active</option>
+        <option value="cancelled" ${data.status==='cancelled'?'selected':''}>Cancelled</option>
+      </select></div>` : ''}
+    <button class="btn btn-primary btn-full" onclick="saveSchedule(${data?.id || 0})">
+      ${data ? 'Update' : 'Add'} Schedule
+    </button>`;
+  document.getElementById('gen-modal').style.display = 'flex';
+}
+
+function editSchedule(id) { openScheduleModal(allSchedules.find(s => s.id === id)); }
+
+async function saveSchedule(id) {
+  const body = {
+    shipping_line_id: document.getElementById('f-line').value,
+    route: document.getElementById('f-route').value,
+    departure_time: document.getElementById('f-time').value + ':00'
+  };
+  if (id) body.status = document.getElementById('f-status')?.value || 'active';
+  const res = await API.post('schedules.php', { action: id ? 'update' : 'create' }, { ...body, id });
+  if (res.success) { toast('Schedule saved', 'success'); closeModal(); loadAdminSchedules(); }
+  else toast('Failed', 'error');
+}
+
+async function deleteSchedule(id) {
+  confirm('Delete this schedule?', async () => {
+    const res = await API.delete('schedules.php', { id });
+    if (res.success) { toast('Deleted', 'success'); loadAdminSchedules(); } else toast('Failed', 'error');
+  });
+}
+
+// ── Fares ─────────────────────────────────────
+let fareTab = 'fares';
+function switchFareTab(tab) {
+  fareTab = tab;
+  document.getElementById('tab-fares').classList.toggle('active', tab === 'fares');
+  document.getElementById('tab-cargo').classList.toggle('active', tab === 'cargo');
+  document.getElementById('fares-panel').style.display = tab === 'fares' ? 'block' : 'none';
+  document.getElementById('cargo-panel').style.display = tab === 'cargo' ? 'block' : 'none';
+  loadFares();
+}
+
+async function loadFares() {
+  const [fRes, cRes] = await Promise.all([
+    API.get('fares.php', { action: 'all' }),
+    API.get('fares.php', { action: 'cargo_all' })
+  ]);
+  allFares = fRes.fares || [];
+  allCargo = cRes.cargo_rates || [];
+
+  const fe = document.getElementById('fares-table');
+  fe.innerHTML = `<table>
+    <thead><tr><th>Shipping Line</th><th>Passenger Type</th><th>Class</th><th>Price</th><th>Action</th></tr></thead>
+    <tbody>${allFares.map(f => `
+      <tr>
+        <td>${f.shipping_line}</td>
+        <td>${f.passenger_type}</td>
+        <td>${f.class_type}</td>
+        <td><input type="number" class="form-control" id="fare-${f.id}" value="${f.price}" style="width:120px;padding:7px 10px;font-size:0.88rem;"></td>
+        <td><button class="btn btn-primary btn-sm" onclick="saveFare(${f.id})">Save</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+
+  const ce = document.getElementById('cargo-table');
+  ce.innerHTML = `<table>
+    <thead><tr><th>Shipping Line</th><th>Cargo Type</th><th>Price</th><th>Action</th></tr></thead>
+    <tbody>${allCargo.map(c => `
+      <tr>
+        <td>${c.shipping_line}</td>
+        <td>${c.cargo_type}</td>
+        <td><input type="number" class="form-control" id="cargo-${c.id}" value="${c.price}" style="width:120px;padding:7px 10px;font-size:0.88rem;"></td>
+        <td><button class="btn btn-primary btn-sm" onclick="saveCargo(${c.id})">Save</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+async function saveFare(id) {
+  const price = document.getElementById('fare-' + id).value;
+  const res = await API.post('fares.php', { action: 'update_fare' }, { id, price });
+  if (res.success) toast('Fare updated', 'success'); else toast('Failed', 'error');
+}
+async function saveCargo(id) {
+  const price = document.getElementById('cargo-' + id).value;
+  const res = await API.post('fares.php', { action: 'update_cargo' }, { id, price });
+  if (res.success) toast('Cargo rate updated', 'success'); else toast('Failed', 'error');
+}
+
+// ── Lines ─────────────────────────────────────
+async function loadLines() {
+  const res = await API.get('shipping_lines.php');
+  allLines = res.lines || [];
+  const el = document.getElementById('lines-table');
+  if (!allLines.length) { el.innerHTML = '<div class="empty"><p>No shipping lines.</p></div>'; return; }
+  el.innerHTML = `<table>
+    <thead><tr><th>Name</th><th>Route</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${allLines.map(l => `
+      <tr>
+        <td style="font-weight:600">${l.name}</td>
+        <td>${l.route}</td>
+        <td>${badgeHtml(l.status)}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="editLine(${l.id})">Edit</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function openLineModal(data = null) {
+  document.getElementById('modal-title').textContent = data ? 'Edit Shipping Line' : 'Add Shipping Line';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-group"><label class="form-label">Name</label>
+      <input class="form-control" id="f-name" value="${data?.name || ''}" placeholder="Island Shipping"></div>
+    <div class="form-group"><label class="form-label">Route</label>
+      <input class="form-control" id="f-route" value="${data?.route || ''}" placeholder="Santa Fe ↔ Hagnaya"></div>
+    ${data ? `<div class="form-group"><label class="form-label">Status</label>
+      <select class="form-control" id="f-status">
+        <option value="active" ${data.status==='active'?'selected':''}>Active</option>
+        <option value="inactive" ${data.status==='inactive'?'selected':''}>Inactive</option>
+      </select></div>` : ''}
+    <button class="btn btn-primary btn-full" onclick="saveLine(${data?.id || 0})">
+      ${data ? 'Update' : 'Add'} Line
+    </button>`;
+  document.getElementById('gen-modal').style.display = 'flex';
+}
+function editLine(id) { openLineModal(allLines.find(l => l.id === id)); }
+async function saveLine(id) {
+  const body = { name: document.getElementById('f-name').value, route: document.getElementById('f-route').value };
+  if (id) body.status = document.getElementById('f-status')?.value || 'active';
+  const res = await API.post('shipping_lines.php', { action: id ? 'update' : 'create' }, { ...body, id });
+  if (res.success) { toast('Saved', 'success'); closeModal(); loadLines(); } else toast('Failed', 'error');
+}
+
+// ── Users ─────────────────────────────────────
+async function loadUsers() {
+  const res = await API.get('users.php', { action: 'all' });
+  allUsers = res.users || [];
+  renderUsersTable(allUsers);
+}
+function renderUsersTable(list) {
+  const el = document.getElementById('users-table');
+  if (!list.length) { el.innerHTML = '<div class="empty"><p>No users.</p></div>'; return; }
+  el.innerHTML = `<table>
+    <thead><tr><th>Name</th><th>Email</th><th>Contact</th><th>Registered</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${list.map(u => `
+      <tr>
+        <td style="font-weight:600">${u.name}</td>
+        <td style="font-size:0.82rem">${u.email}</td>
+        <td style="font-size:0.82rem">${u.contact || '—'}</td>
+        <td style="font-size:0.78rem;color:var(--text-dim)">${new Date(u.created_at).toLocaleDateString('en-PH')}</td>
+        <td>${badgeHtml(u.status)}</td>
+        <td>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="toggleUserStatus(${u.id}, '${u.status}')">
+              ${u.status === 'active' ? 'Deactivate' : 'Activate'}
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">✕</button>
+          </div>
+        </td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+function filterUsers(q) { renderUsersTable(allUsers.filter(u => u.name.toLowerCase().includes(q.toLowerCase()) || u.email.toLowerCase().includes(q.toLowerCase()))); }
+async function toggleUserStatus(id, current) {
+  const status = current === 'active' ? 'inactive' : 'active';
+  const res = await API.post('users.php', { action: 'update_status' }, { id, status });
+  if (res.success) { toast('Status updated', 'success'); loadUsers(); } else toast('Failed', 'error');
+}
+async function deleteUser(id) {
+  confirm('Delete this user permanently?', async () => {
+    const res = await API.delete('users.php', { id });
+    if (res.success) { toast('Deleted', 'success'); loadUsers(); } else toast('Failed', 'error');
+  });
+}
+
+// ── Admins ────────────────────────────────────
+async function loadAdmins() {
+  const res = await API.get('users.php', { action: 'admins' });
+  const list = res.admins || [];
+  const el = document.getElementById('admins-table');
+  if (!list.length) { el.innerHTML = '<div class="empty"><p>No admins.</p></div>'; return; }
+  el.innerHTML = `<table>
+    <thead><tr><th>Username</th><th>Created</th><th>Actions</th></tr></thead>
+    <tbody>${list.map(a => `
+      <tr>
+        <td style="font-weight:600">${a.username}</td>
+        <td style="font-size:0.78rem;color:var(--text-dim)">${new Date(a.created_at).toLocaleDateString('en-PH')}</td>
+        <td>${a.username !== admin.username ? `<button class="btn btn-danger btn-sm" onclick="deleteAdmin(${a.id})">Delete</button>` : '<span style="font-size:0.78rem;color:var(--text-dim)">Current</span>'}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+function openAdminModal() {
+  document.getElementById('modal-title').textContent = 'Add Admin Account';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-group"><label class="form-label">Username</label>
+      <input class="form-control" id="f-username" placeholder="adminuser"></div>
+    <div class="form-group"><label class="form-label">Password</label>
+      <input class="form-control" id="f-pass" type="password" placeholder="Min. 6 characters"></div>
+    <button class="btn btn-primary btn-full" onclick="createAdmin()">Create Admin</button>`;
+  document.getElementById('gen-modal').style.display = 'flex';
+}
+async function createAdmin() {
+  const username = document.getElementById('f-username').value.trim();
+  const password = document.getElementById('f-pass').value;
+  if (!username || password.length < 6) return toast('Fill in all fields (password min 6 chars)', 'error');
+  const res = await API.post('users.php', { action: 'create_admin' }, { username, password });
+  if (res.success) { toast('Admin created', 'success'); closeModal(); loadAdmins(); } else toast(res.message || 'Failed', 'error');
+}
+async function deleteAdmin(id) {
+  confirm('Delete this admin account?', async () => {
+    const res = await API.post('users.php', { action: 'delete_admin' }, { id });
+    if (res.success) { toast('Deleted', 'success'); loadAdmins(); } else toast('Failed', 'error');
+  });
+}
+
+// ── Helpers ───────────────────────────────────
+function closeModal() { document.getElementById('gen-modal').style.display = 'none'; }
+document.getElementById('gen-modal').addEventListener('click', e => { if (e.target.id === 'gen-modal') closeModal(); });
+function adminLogout() { Session.logout(); location.href = 'login.html'; }
+</script>
+</body>
+</html>
