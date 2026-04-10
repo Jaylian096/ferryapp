@@ -18,6 +18,8 @@
     .back-link:hover { color:var(--teal); }
     .password-strength { height:4px; border-radius:2px; margin-top:6px; transition:var(--transition); }
     .strength-hint { font-size:0.75rem; color:var(--text-dim); margin-top:4px; }
+    /* Prevent iOS auto-zoom on form inputs */
+    @media (max-width: 768px) { input, select, textarea { font-size: 16px !important; } }
   </style>
 </head>
 <body>

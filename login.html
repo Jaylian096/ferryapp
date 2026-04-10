@@ -16,13 +16,15 @@
     .auth-footer a { color:var(--teal); text-decoration:none; font-weight:600; }
     .auth-footer a:hover { text-decoration:underline; }
     .tab-switch { display:flex; background:rgba(255,255,255,0.04); border-radius:10px; padding:4px; margin-bottom:24px; border:1px solid var(--glass-border); }
-    .tab-switch button { flex:1; padding:9px; border-radius:7px; background:none; border:none; color:var(--text-dim); font-family:var(--font-body); font-size:0.88rem; font-weight:600; cursor:pointer; transition:var(--transition); }
+    .tab-switch button { flex:1; padding:9px; border-radius:7px; background:none; border:none; color:var(--text-dim); font-family:var(--font-body); font-size:0.88rem; font-weight:600; cursor:pointer; transition:var(--transition); min-height:44px; }
     .tab-switch button.active { background:linear-gradient(135deg,var(--wave-2),var(--teal)); color:#fff; }
     .divider-text { display:flex; align-items:center; gap:12px; margin:20px 0; }
     .divider-text span { font-size:0.78rem; color:var(--text-faint); white-space:nowrap; }
     .divider-text::before,.divider-text::after { content:''; flex:1; height:1px; background:var(--glass-border); }
     .back-link { display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--text-dim); text-decoration:none; margin-bottom:24px; transition:var(--transition); }
     .back-link:hover { color:var(--teal); }
+    /* Prevent iOS auto-zoom on form inputs */
+    @media (max-width: 768px) { input, select, textarea { font-size: 16px !important; } }
   </style>
 </head>
 <body>

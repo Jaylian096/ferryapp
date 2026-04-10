@@ -166,20 +166,10 @@ function confirm(message, onYes) {
   overlay.querySelector('#confirm-yes').onclick = () => { overlay.remove(); onYes(); };
 }
 
-// ── Sidebar Toggle (mobile) ───────────────────
+// ── Sidebar Toggle (desktop only — mobile uses bottom tabbar) ───────────────────
 function initSidebar() {
-  const btn = document.getElementById('hamburger');
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebar-overlay');
-  if (!btn) return;
-  btn.addEventListener('click', () => {
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('show');
-  });
-  overlay?.addEventListener('click', () => {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('show');
-  });
+  // Desktop sidebar: no hamburger needed. Mobile uses bottom tabbar via CSS.
+  // Kept as no-op so admin.html references don't break.
 }
 
 // ── Nav active state ──────────────────────────

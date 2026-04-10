@@ -60,12 +60,9 @@
 <body>
 <div class="bg-orbs"></div>
 
-<!-- Navbar -->
+<!-- Desktop Navbar -->
 <nav class="navbar">
   <div class="nav-brand">
-    <button class="hamburger" id="hamburger" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
     ⛴ Bantayan Ferry
   </div>
   <div class="nav-actions">
@@ -73,9 +70,32 @@
   </div>
 </nav>
 
+<!-- Mobile Top Bar -->
+<div class="mobile-topbar" id="mobile-topbar">
+  <div class="topbar-brand">⛴ Ferry Pass</div>
+  <div class="topbar-right">
+    <div class="topbar-avatar" id="user-avatar-mobile">U</div>
+  </div>
+</div>
+
+<!-- Mobile Bottom Tab Bar -->
+<div class="bottom-tabbar" id="bottom-tabbar">
+  <button class="tab-item active" id="tab-book" onclick="showSection('book')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    Book
+  </button>
+  <button class="tab-item" id="tab-bookings" onclick="showSection('bookings')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Bookings
+  </button>
+  <button class="tab-item" id="tab-logout" onclick="logout()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    Logout
+  </button>
+</div>
+
 <div class="layout">
-  <!-- Sidebar -->
-  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <!-- Desktop Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <span class="logo">⛴</span>
@@ -247,9 +267,11 @@ let state = {
 
 // ── Init ──────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  initSidebar();
+  const ini = initials(user.name);
   const avatar = document.getElementById('user-avatar');
-  if (avatar) { avatar.textContent = initials(user.name); avatar.title = user.name; }
+  if (avatar) { avatar.textContent = ini; avatar.title = user.name; }
+  const avatarMobile = document.getElementById('user-avatar-mobile');
+  if (avatarMobile) { avatarMobile.textContent = ini; avatarMobile.title = user.name; }
   loadLines();
 });
 
@@ -263,10 +285,12 @@ async function loadLines() {
 function showSection(name) {
   document.getElementById('section-book').style.display     = name === 'book'     ? 'block' : 'none';
   document.getElementById('section-bookings').style.display = name === 'bookings' ? 'block' : 'none';
+  // Desktop sidebar active
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   document.getElementById('nav-' + name)?.classList.add('active');
-  document.getElementById('sidebar')?.classList.remove('open');
-  document.getElementById('sidebar-overlay')?.classList.remove('show');
+  // Mobile bottom tabbar active
+  document.querySelectorAll('.bottom-tabbar .tab-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name)?.classList.add('active');
   if (name === 'bookings') loadMyBookings();
 }
 
