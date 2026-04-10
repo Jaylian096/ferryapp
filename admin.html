@@ -7,23 +7,248 @@
   <link rel="stylesheet" href="css/main.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <style>
-    .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
-    .chart-wrap { background:var(--glass); border:1px solid var(--glass-border); backdrop-filter:blur(20px); border-radius:var(--radius); padding:24px; margin-bottom:24px; }
-    .chart-title { font-family:var(--font-display); font-size:0.95rem; font-weight:700; margin-bottom:20px; }
-    .table-card { background:var(--glass); border:1px solid var(--glass-border); backdrop-filter:blur(20px); border-radius:var(--radius); overflow:hidden; }
-    .table-toolbar { padding:16px 20px; border-bottom:1px solid var(--glass-border); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-    .table-toolbar h3 { font-family:var(--font-display); font-size:0.95rem; font-weight:700; }
-    @media(max-width:900px) { .stats-grid{grid-template-columns:1fr 1fr} }
-    @media(max-width:480px) { .stats-grid{grid-template-columns:1fr 1fr} }
+    /* ── Stats Grid ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 900px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 400px) { .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; } }
+
+    /* ── Chart / Table Cards ── */
+    .chart-wrap {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 480px) { .chart-wrap { padding: 16px; } }
+
+    .chart-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .table-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .table-toolbar {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .table-toolbar h3 {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    @media (max-width: 480px) {
+      .table-toolbar { padding: 12px 14px; }
+      .table-toolbar h3 { font-size: 0.88rem; }
+    }
+
+    /* ── Table responsive wrap ── */
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table-wrap table { min-width: 500px; }
+
+    /* ── Page header row ── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    /* ── Admin top bar (mobile only) ── */
+    .admin-topbar {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 60;
+      height: 56px;
+      background: rgba(10,22,40,0.97);
+      border-bottom: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      align-items: center;
+      padding: 0 16px;
+      gap: 10px;
+    }
+    .admin-topbar .topbar-brand {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--teal);
+      flex: 1;
+    }
+    .admin-topbar .topbar-user {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+    @media (max-width: 768px) {
+      .admin-topbar { display: flex; }
+    }
+
+    /* ── Bottom Tab Bar ── */
+    .bottom-tabbar {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 60;
+      height: 64px;
+      background: rgba(10,22,40,0.98);
+      border-top: 1px solid var(--glass-border);
+      backdrop-filter: blur(24px);
+      align-items: stretch;
+    }
+    .bottom-tabbar .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+      color: var(--text-faint);
+      font-size: 0.58rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      transition: color 0.2s, background 0.2s;
+      border: none;
+      background: none;
+      padding: 0 2px;
+      position: relative;
+    }
+    .bottom-tabbar .tab-item::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 20%; right: 20%;
+      height: 2px;
+      background: var(--teal);
+      border-radius: 0 0 4px 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .bottom-tabbar .tab-item.active { color: var(--teal); }
+    .bottom-tabbar .tab-item.active::before { opacity: 1; }
+    .bottom-tabbar .tab-item svg { flex-shrink: 0; }
+
+    /* "More" slide-up menu */
+    .more-menu {
+      display: none;
+      position: fixed;
+      bottom: 64px; left: 0; right: 0;
+      z-index: 59;
+      background: rgba(10,22,40,0.98);
+      border-top: 1px solid var(--glass-border);
+      backdrop-filter: blur(24px);
+      padding: 8px 0 4px;
+      animation: slideUp 0.2s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .more-menu.open { display: block; }
+    .more-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 24px;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: color 0.2s, background 0.2s;
+    }
+    .more-menu-item:hover,
+    .more-menu-item.active { color: var(--teal); background: rgba(0,212,200,0.06); }
+    .more-menu-divider {
+      height: 1px;
+      background: var(--glass-border);
+      margin: 4px 0;
+    }
+
+    @media (max-width: 768px) {
+      .bottom-tabbar { display: flex; }
+      .main-content {
+        padding-bottom: 80px !important;
+        padding-top: 72px !important;
+      }
+      /* hide desktop sidebar completely on mobile */
+      .sidebar { display: none !important; }
+    }
+
+    /* ── Sidebar — desktop only ── */
+    @media (min-width: 769px) {
+      .admin-topbar { display: none !important; }
+      .bottom-tabbar { display: none !important; }
+      .more-menu { display: none !important; }
+    }
+
+    /* ── Search bar full-width on small screens ── */
+    @media (max-width: 600px) {
+      .table-toolbar { flex-direction: column; align-items: stretch; }
+      .table-toolbar .search-bar { min-width: unset !important; width: 100%; }
+      .table-toolbar .search-bar input { width: 100%; }
+    }
+
+    /* ── Modal full-screen sheet on mobile ── */
+    @media (max-width: 520px) {
+      .modal-overlay { align-items: flex-end; }
+      .modal {
+        border-radius: var(--radius) var(--radius) 0 0 !important;
+        max-height: 90vh;
+        overflow-y: auto;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+    }
   </style>
 </head>
 <body>
 <div class="bg-orbs"></div>
 
-<div class="layout">
-  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+<!-- Mobile Top Bar -->
+<div class="admin-topbar" id="admin-topbar">
+  <span class="topbar-brand">⛴ Admin</span>
+  <span class="topbar-user" id="admin-name-topbar">—</span>
+</div>
 
-  <!-- Sidebar -->
+<!-- More Menu (mobile slide-up) -->
+<div class="more-menu" id="more-menu">
+  <button class="more-menu-item" id="mm-lines" onclick="showAdminSection('lines'); toggleMoreMenu(false)">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21c-1.39 0-2.78-.47-4-1.32-2.44 1.71-5.56 1.71-8 0C6.78 20.53 5.39 21 4 21H2v2h2c1.39 0 2.78-.47 4-1.32 2.44 1.71 5.56 1.71 8 0 1.22.85 2.61 1.32 4 1.32h2v-2h-2z"/></svg>
+    Shipping Lines
+  </button>
+  <button class="more-menu-item" id="mm-admins" onclick="showAdminSection('admins'); toggleMoreMenu(false)">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Admins
+  </button>
+  <div class="more-menu-divider"></div>
+  <button class="more-menu-item" onclick="adminLogout()">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    Logout
+  </button>
+</div>
+
+<div class="layout">
+
+  <!-- Desktop Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <span class="logo">⛴</span>
@@ -75,8 +300,7 @@
 
   <!-- Main -->
   <main class="main-content">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
-      <button class="hamburger" id="hamburger" style="display:none;"><span></span><span></span><span></span></button>
+    <div class="page-header">
       <h1 class="section-title" id="page-title" style="margin-bottom:0;">Dashboard</h1>
     </div>
 
@@ -201,6 +425,34 @@
   </main>
 </div>
 
+<!-- Bottom Tab Bar (mobile) -->
+<nav class="bottom-tabbar" id="bottom-tabbar">
+  <button class="tab-item active" id="tabn-overview" onclick="showAdminSection('overview')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Home
+  </button>
+  <button class="tab-item" id="tabn-bookings" onclick="showAdminSection('bookings')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Bookings
+  </button>
+  <button class="tab-item" id="tabn-schedules" onclick="showAdminSection('schedules')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Schedule
+  </button>
+  <button class="tab-item" id="tabn-fares" onclick="showAdminSection('fares')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    Fares
+  </button>
+  <button class="tab-item" id="tabn-users" onclick="showAdminSection('users')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    Users
+  </button>
+  <button class="tab-item" id="tabn-more" onclick="toggleMoreMenu()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>
+    More
+  </button>
+</nav>
+
 <!-- Generic Modal -->
 <div class="modal-overlay" id="gen-modal" style="display:none;">
   <div class="modal">
@@ -217,27 +469,69 @@ const admin = Session.getAdmin();
 if (!admin) location.href = 'login.html';
 
 let allBookings = [], allUsers = [], allFares = [], allCargo = [], allSchedules = [], allLines = [];
+let moreMenuOpen = false;
 
 document.addEventListener('DOMContentLoaded', () => {
   initSidebar();
   document.getElementById('admin-name-label').textContent = admin.username;
-  // Show hamburger on mobile
-  const hb = document.getElementById('hamburger');
-  if (window.innerWidth <= 768 && hb) hb.style.display = 'flex';
+  document.getElementById('admin-name-topbar').textContent = admin.username;
   loadOverview();
 });
 
-// ── Sections ─────────────────────────────────
-const sectionTitles = { overview:'Dashboard', bookings:'Manage Bookings', schedules:'Manage Schedules', fares:'Fares & Cargo Rates', lines:'Shipping Lines', users:'Manage Users', admins:'Manage Admins' };
+// ── More Menu (mobile) ─────────────────────────
+function toggleMoreMenu(force) {
+  moreMenuOpen = force !== undefined ? force : !moreMenuOpen;
+  document.getElementById('more-menu').classList.toggle('open', moreMenuOpen);
+  document.getElementById('tabn-more').classList.toggle('active', moreMenuOpen);
+}
+
+document.addEventListener('click', e => {
+  if (moreMenuOpen && !e.target.closest('#more-menu') && !e.target.closest('#tabn-more')) {
+    toggleMoreMenu(false);
+  }
+});
+
+// ── Section router ────────────────────────────
+const sectionTitles = {
+  overview: 'Dashboard', bookings: 'Manage Bookings', schedules: 'Manage Schedules',
+  fares: 'Fares & Cargo Rates', lines: 'Shipping Lines', users: 'Manage Users', admins: 'Manage Admins'
+};
+
+const sectionToTab = {
+  overview: 'overview', bookings: 'bookings', schedules: 'schedules',
+  fares: 'fares', users: 'users', lines: 'more', admins: 'more'
+};
+
 function showAdminSection(name) {
+  // Switch content panels
   Object.keys(sectionTitles).forEach(s => {
     document.getElementById('section-' + s).style.display = s === name ? 'block' : 'none';
     document.getElementById('nav-' + s)?.classList.toggle('active', s === name);
   });
   document.getElementById('page-title').textContent = sectionTitles[name];
+
+  // Bottom tab bar active state
+  ['overview','bookings','schedules','fares','users','more'].forEach(t => {
+    document.getElementById('tabn-' + t)?.classList.remove('active');
+  });
+  document.getElementById('tabn-' + (sectionToTab[name] || 'more'))?.classList.add('active');
+
+  // More-menu item highlights
+  ['lines','admins'].forEach(s => {
+    document.getElementById('mm-' + s)?.classList.toggle('active', s === name);
+  });
+
+  toggleMoreMenu(false);
+
+  // Close sidebar on mobile (should be hidden anyway but belt-and-suspenders)
   document.getElementById('sidebar')?.classList.remove('open');
   document.getElementById('sidebar-overlay')?.classList.remove('show');
-  const loaders = { bookings: loadAdminBookings, schedules: loadAdminSchedules, fares: loadFares, lines: loadLines, users: loadUsers, admins: loadAdmins };
+
+  // Lazy-load section data
+  const loaders = {
+    bookings: loadAdminBookings, schedules: loadAdminSchedules,
+    fares: loadFares, lines: loadLines, users: loadUsers, admins: loadAdmins
+  };
   if (loaders[name]) loaders[name]();
 }
 
@@ -308,7 +602,6 @@ function renderRevenueChart() {
 
 // ── Bookings ──────────────────────────────────
 async function loadAdminBookings() {
-  const el = document.getElementById('bookings-table');
   if (allBookings.length === 0) {
     const res = await API.get('bookings.php', { action: 'all' });
     allBookings = res.bookings || [];
@@ -344,7 +637,12 @@ function renderBookingsTable(list) {
     </tbody></table>`;
 }
 
-function filterBookings(q) { renderBookingsTable(allBookings.filter(b => b.reference_no.toLowerCase().includes(q.toLowerCase()) || b.user_name.toLowerCase().includes(q.toLowerCase()))); }
+function filterBookings(q) {
+  renderBookingsTable(allBookings.filter(b =>
+    b.reference_no.toLowerCase().includes(q.toLowerCase()) ||
+    b.user_name.toLowerCase().includes(q.toLowerCase())
+  ));
+}
 
 async function updateBookingStatus(id, status) {
   const res = await API.post('bookings.php', { action: 'update_status' }, { booking_id: id, status });
@@ -362,7 +660,10 @@ async function deleteBooking(id) {
 
 // ── Schedules ─────────────────────────────────
 async function loadAdminSchedules() {
-  const [sRes, lRes] = await Promise.all([API.get('schedules.php', { action: 'all' }), API.get('shipping_lines.php')]);
+  const [sRes, lRes] = await Promise.all([
+    API.get('schedules.php', { action: 'all' }),
+    API.get('shipping_lines.php')
+  ]);
   allSchedules = sRes.schedules || [];
   allLines     = lRes.lines     || [];
   const el = document.getElementById('schedules-table');
@@ -387,7 +688,9 @@ async function loadAdminSchedules() {
 
 function openScheduleModal(data = null) {
   document.getElementById('modal-title').textContent = data ? 'Edit Schedule' : 'Add Schedule';
-  const lineOptions = allLines.map(l => `<option value="${l.id}" ${data?.shipping_line_id == l.id ? 'selected' : ''}>${l.name}</option>`).join('');
+  const lineOptions = allLines.map(l =>
+    `<option value="${l.id}" ${data?.shipping_line_id == l.id ? 'selected' : ''}>${l.name}</option>`
+  ).join('');
   document.getElementById('modal-body').innerHTML = `
     <div class="form-group"><label class="form-label">Shipping Line</label>
       <select class="form-control" id="f-line">${lineOptions}</select></div>
@@ -423,7 +726,8 @@ async function saveSchedule(id) {
 async function deleteSchedule(id) {
   confirm('Delete this schedule?', async () => {
     const res = await API.delete('schedules.php', { id });
-    if (res.success) { toast('Deleted', 'success'); loadAdminSchedules(); } else toast('Failed', 'error');
+    if (res.success) { toast('Deleted', 'success'); loadAdminSchedules(); }
+    else toast('Failed', 'error');
   });
 }
 
@@ -433,8 +737,8 @@ function switchFareTab(tab) {
   fareTab = tab;
   document.getElementById('tab-fares').classList.toggle('active', tab === 'fares');
   document.getElementById('tab-cargo').classList.toggle('active', tab === 'cargo');
-  document.getElementById('fares-panel').style.display = tab === 'fares' ? 'block' : 'none';
-  document.getElementById('cargo-panel').style.display = tab === 'cargo' ? 'block' : 'none';
+  document.getElementById('fares-panel').style.display  = tab === 'fares'  ? 'block' : 'none';
+  document.getElementById('cargo-panel').style.display  = tab === 'cargo'  ? 'block' : 'none';
   loadFares();
 }
 
@@ -446,8 +750,7 @@ async function loadFares() {
   allFares = fRes.fares || [];
   allCargo = cRes.cargo_rates || [];
 
-  const fe = document.getElementById('fares-table');
-  fe.innerHTML = `<table>
+  document.getElementById('fares-table').innerHTML = `<table>
     <thead><tr><th>Shipping Line</th><th>Passenger Type</th><th>Class</th><th>Price</th><th>Action</th></tr></thead>
     <tbody>${allFares.map(f => `
       <tr>
@@ -459,8 +762,7 @@ async function loadFares() {
       </tr>`).join('')}
     </tbody></table>`;
 
-  const ce = document.getElementById('cargo-table');
-  ce.innerHTML = `<table>
+  document.getElementById('cargo-table').innerHTML = `<table>
     <thead><tr><th>Shipping Line</th><th>Cargo Type</th><th>Price</th><th>Action</th></tr></thead>
     <tbody>${allCargo.map(c => `
       <tr>
@@ -520,10 +822,14 @@ function openLineModal(data = null) {
 }
 function editLine(id) { openLineModal(allLines.find(l => l.id === id)); }
 async function saveLine(id) {
-  const body = { name: document.getElementById('f-name').value, route: document.getElementById('f-route').value };
+  const body = {
+    name: document.getElementById('f-name').value,
+    route: document.getElementById('f-route').value
+  };
   if (id) body.status = document.getElementById('f-status')?.value || 'active';
   const res = await API.post('shipping_lines.php', { action: id ? 'update' : 'create' }, { ...body, id });
-  if (res.success) { toast('Saved', 'success'); closeModal(); loadLines(); } else toast('Failed', 'error');
+  if (res.success) { toast('Saved', 'success'); closeModal(); loadLines(); }
+  else toast('Failed', 'error');
 }
 
 // ── Users ─────────────────────────────────────
@@ -555,16 +861,23 @@ function renderUsersTable(list) {
       </tr>`).join('')}
     </tbody></table>`;
 }
-function filterUsers(q) { renderUsersTable(allUsers.filter(u => u.name.toLowerCase().includes(q.toLowerCase()) || u.email.toLowerCase().includes(q.toLowerCase()))); }
+function filterUsers(q) {
+  renderUsersTable(allUsers.filter(u =>
+    u.name.toLowerCase().includes(q.toLowerCase()) ||
+    u.email.toLowerCase().includes(q.toLowerCase())
+  ));
+}
 async function toggleUserStatus(id, current) {
   const status = current === 'active' ? 'inactive' : 'active';
   const res = await API.post('users.php', { action: 'update_status' }, { id, status });
-  if (res.success) { toast('Status updated', 'success'); loadUsers(); } else toast('Failed', 'error');
+  if (res.success) { toast('Status updated', 'success'); loadUsers(); }
+  else toast('Failed', 'error');
 }
 async function deleteUser(id) {
   confirm('Delete this user permanently?', async () => {
     const res = await API.delete('users.php', { id });
-    if (res.success) { toast('Deleted', 'success'); loadUsers(); } else toast('Failed', 'error');
+    if (res.success) { toast('Deleted', 'success'); loadUsers(); }
+    else toast('Failed', 'error');
   });
 }
 
@@ -580,7 +893,10 @@ async function loadAdmins() {
       <tr>
         <td style="font-weight:600">${a.username}</td>
         <td style="font-size:0.78rem;color:var(--text-dim)">${new Date(a.created_at).toLocaleDateString('en-PH')}</td>
-        <td>${a.username !== admin.username ? `<button class="btn btn-danger btn-sm" onclick="deleteAdmin(${a.id})">Delete</button>` : '<span style="font-size:0.78rem;color:var(--text-dim)">Current</span>'}</td>
+        <td>${a.username !== admin.username
+          ? `<button class="btn btn-danger btn-sm" onclick="deleteAdmin(${a.id})">Delete</button>`
+          : '<span style="font-size:0.78rem;color:var(--text-dim)">Current</span>'
+        }</td>
       </tr>`).join('')}
     </tbody></table>`;
 }
@@ -599,18 +915,22 @@ async function createAdmin() {
   const password = document.getElementById('f-pass').value;
   if (!username || password.length < 6) return toast('Fill in all fields (password min 6 chars)', 'error');
   const res = await API.post('users.php', { action: 'create_admin' }, { username, password });
-  if (res.success) { toast('Admin created', 'success'); closeModal(); loadAdmins(); } else toast(res.message || 'Failed', 'error');
+  if (res.success) { toast('Admin created', 'success'); closeModal(); loadAdmins(); }
+  else toast(res.message || 'Failed', 'error');
 }
 async function deleteAdmin(id) {
   confirm('Delete this admin account?', async () => {
     const res = await API.post('users.php', { action: 'delete_admin' }, { id });
-    if (res.success) { toast('Deleted', 'success'); loadAdmins(); } else toast('Failed', 'error');
+    if (res.success) { toast('Deleted', 'success'); loadAdmins(); }
+    else toast('Failed', 'error');
   });
 }
 
 // ── Helpers ───────────────────────────────────
 function closeModal() { document.getElementById('gen-modal').style.display = 'none'; }
-document.getElementById('gen-modal').addEventListener('click', e => { if (e.target.id === 'gen-modal') closeModal(); });
+document.getElementById('gen-modal').addEventListener('click', e => {
+  if (e.target.id === 'gen-modal') closeModal();
+});
 function adminLogout() { Session.logout(); location.href = 'login.html'; }
 </script>
 </body>
